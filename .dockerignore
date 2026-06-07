@@ -1,0 +1,20 @@
+# Build context = repo root (Dockerfile uses `COPY backend/ ...`).
+# Keep the image small: exclude everything not needed for inference.
+data/
+mlruns/
+notebooks/
+frontend/
+tests/
+docs/
+.notes/
+.git/
+.github/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+*.ipynb
+
+# Exclude all checkpoints EXCEPT the single deployment model.
+results/checkpoints/*
+!results/checkpoints/best_model.pt

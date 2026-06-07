@@ -1,0 +1,12 @@
+# Normalize line endings: store text files with LF in the repo and check them
+# out as LF on every platform (Windows dev + Linux CI stay consistent).
+* text=auto eol=lf
+
+# Binary artifacts — never apply EOL conversion.
+*.pt   binary
+*.pth  binary
+*.onnx binary
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.ipynb binary

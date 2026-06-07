@@ -1,0 +1,40 @@
+# --- Data & ML artifacts (do NOT commit large files) ---
+# Ignore contents but keep the empty dirs via their .gitkeep placeholders.
+data/*
+!data/.gitkeep
+mlruns/*
+!mlruns/.gitkeep
+results/checkpoints/*
+!results/checkpoints/.gitkeep
+*.pt
+*.pth
+*.onnx
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+*.egg-info/
+build/
+dist/
+
+# --- Node / frontend ---
+node_modules/
+frontend/dist/
+
+# --- Internal notes (planning, drafts, resume meta — not for reviewers) ---
+.notes/
+
+# --- Secrets ---
+kaggle.json
+.env
+
+# --- OS / IDE ---
+.DS_Store
+.idea/
+.vscode/
