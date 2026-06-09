@@ -9,3 +9,7 @@ class PredictionResponse(BaseModel):
     predicted_class: str
     confidence: float
     probabilities: dict[str, float]
+
+
+class ExplainResponse(PredictionResponse):
+    grad_cam_image: str | None = None

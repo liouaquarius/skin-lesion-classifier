@@ -17,7 +17,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, File, HTTPException, UploadFile
 from PIL import Image, UnidentifiedImageError
 
-from backend.schemas import PredictionResponse
+from backend.schemas import ExplainResponse, PredictionResponse
 from src.inference import Predictor
 
 _predictor: Predictor | None = None
@@ -57,3 +57,17 @@ async def predict(file: UploadFile = File(...)) -> PredictionResponse:
         raise HTTPException(status_code=422, detail="Invalid image file.")
     result = _predictor.predict(image)
     return PredictionResponse(**result)
+
+
+@app.post("/explain", response_model=ExplainResponse)
+async def explain(file: UploadFile = File(...)) -> ExplainResponse:
+    """Like /predict but also returns a Grad-CAM heatmap overlay as a data-URI."""
+    if _predictor is None:
+        raise HTTPException(status_code=503, detail="Model not loaded.")
+    try:
+        data = await file.read()
+        image = Image.open(io.BytesIO(data)).convert("RGB")
+    except (UnidentifiedImageError, Exception):
+        raise HTTPException(status_code=422, detail="Invalid image file.")
+    result = _predictor.explain(image)
+    return ExplainResponse(**result)

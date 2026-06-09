@@ -7,6 +7,10 @@ interface PredictionResponse {
   probabilities: Record<string, number>
 }
 
+interface ExplainResponse extends PredictionResponse {
+  grad_cam_image: string | null
+}
+
 const CLASS_LABELS: Record<string, string> = {
   akiec: 'Actinic Keratosis / IEC',
   bcc: 'Basal Cell Carcinoma',
@@ -21,7 +25,9 @@ const fileInput = ref<HTMLInputElement>()
 const file = ref<File | null>(null)
 const preview = ref<string | null>(null)
 const loading = ref(false)
+const explaining = ref(false)
 const result = ref<PredictionResponse | null>(null)
+const gradCamImage = ref<string | null>(null)
 const error = ref<string | null>(null)
 const dragActive = ref(false)
 
@@ -41,7 +47,19 @@ function loadFile(f: File) {
   file.value = f
   preview.value = URL.createObjectURL(f)
   result.value = null
+  gradCamImage.value = null
   error.value = null
+}
+
+async function postImage(endpoint: string): Promise<Response> {
+  const body = new FormData()
+  body.append('file', file.value!)
+  const resp = await fetch(endpoint, { method: 'POST', body })
+  if (!resp.ok) {
+    const detail = await resp.json().catch(() => null)
+    throw new Error((detail as { detail?: string })?.detail ?? `HTTP ${resp.status}`)
+  }
+  return resp
 }
 
 async function runPrediction() {
@@ -49,19 +67,31 @@ async function runPrediction() {
   loading.value = true
   error.value = null
   result.value = null
+  gradCamImage.value = null
   try {
-    const body = new FormData()
-    body.append('file', file.value)
-    const resp = await fetch('/predict', { method: 'POST', body })
-    if (!resp.ok) {
-      const detail = await resp.json().catch(() => null)
-      throw new Error((detail as { detail?: string })?.detail ?? `HTTP ${resp.status}`)
-    }
+    const resp = await postImage('/predict')
     result.value = (await resp.json()) as PredictionResponse
   } catch (e) {
     error.value = e instanceof Error ? e.message : 'Prediction failed.'
   } finally {
     loading.value = false
+  }
+}
+
+async function runExplain() {
+  if (!file.value) return
+  explaining.value = true
+  error.value = null
+  gradCamImage.value = null
+  try {
+    const resp = await postImage('/explain')
+    const data = (await resp.json()) as ExplainResponse
+    result.value = data
+    gradCamImage.value = data.grad_cam_image
+  } catch (e) {
+    error.value = e instanceof Error ? e.message : 'Explanation failed.'
+  } finally {
+    explaining.value = false
   }
 }
 
@@ -131,10 +161,20 @@ const sortedProbs = computed(() =>
           @change="handleFileInput"
         />
 
-        <button class="predict-btn" :disabled="!file || loading" @click="runPrediction">
-          <span v-if="loading" class="spinner" aria-hidden="true" />
-          {{ loading ? 'Classifying…' : 'Classify Lesion' }}
-        </button>
+        <div class="btn-row">
+          <button class="predict-btn" :disabled="!file || loading || explaining" @click="runPrediction">
+            <span v-if="loading" class="spinner" aria-hidden="true" />
+            {{ loading ? 'Classifying…' : 'Classify' }}
+          </button>
+          <button
+            class="explain-btn"
+            :disabled="!file || loading || explaining"
+            @click="runExplain"
+          >
+            <span v-if="explaining" class="spinner spinner--dark" aria-hidden="true" />
+            {{ explaining ? 'Generating…' : 'Grad-CAM' }}
+          </button>
+        </div>
       </div>
 
       <!-- Error -->
@@ -155,7 +195,13 @@ const sortedProbs = computed(() =>
         <div class="prob-list">
           <div v-for="[cls, p] in sortedProbs" :key="cls" class="prob-row">
             <span class="prob-name">{{ CLASS_LABELS[cls] ?? cls }}</span>
-            <div class="bar-track" role="progressbar" :aria-valuenow="+(p * 100).toFixed(1)" aria-valuemin="0" aria-valuemax="100">
+            <div
+              class="bar-track"
+              role="progressbar"
+              :aria-valuenow="+(p * 100).toFixed(1)"
+              aria-valuemin="0"
+              aria-valuemax="100"
+            >
               <div
                 class="bar-fill"
                 :class="{ 'bar-fill--top': cls === result!.predicted_class }"
@@ -165,6 +211,15 @@ const sortedProbs = computed(() =>
             <span class="prob-pct">{{ (p * 100).toFixed(1) }}%</span>
           </div>
         </div>
+      </div>
+
+      <!-- Grad-CAM heatmap -->
+      <div v-if="gradCamImage" class="card gradcam-card">
+        <p class="gradcam-title">Grad-CAM · activation heatmap</p>
+        <img :src="gradCamImage" class="gradcam-img" alt="Grad-CAM activation heatmap" />
+        <p class="gradcam-caption">
+          Red regions indicate the areas most influential for the predicted class.
+        </p>
       </div>
     </main>
   </div>
@@ -287,17 +342,21 @@ const sortedProbs = computed(() =>
   display: block;
 }
 
-/* ── Button ──────────────────────────────────────────────────────────────── */
-.predict-btn {
+/* ── Buttons ─────────────────────────────────────────────────────────────── */
+.btn-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.predict-btn,
+.explain-btn {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  width: 100%;
-  margin-top: 1rem;
-  padding: 0.75rem 1.5rem;
-  background: #3b82f6;
-  color: #fff;
+  padding: 0.75rem 1.25rem;
   border: none;
   border-radius: 8px;
   font-size: 1rem;
@@ -306,11 +365,27 @@ const sortedProbs = computed(() =>
   transition: background 0.15s, opacity 0.15s;
 }
 
+.predict-btn {
+  background: #3b82f6;
+  color: #fff;
+}
+
 .predict-btn:hover:not(:disabled) {
   background: #2563eb;
 }
 
-.predict-btn:disabled {
+.explain-btn {
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+}
+
+.explain-btn:hover:not(:disabled) {
+  background: #e2e8f0;
+}
+
+.predict-btn:disabled,
+.explain-btn:disabled {
   opacity: 0.45;
   cursor: not-allowed;
 }
@@ -318,8 +393,8 @@ const sortedProbs = computed(() =>
 /* ── Spinner ─────────────────────────────────────────────────────────────── */
 .spinner {
   display: inline-block;
-  width: 16px;
-  height: 16px;
+  width: 15px;
+  height: 15px;
   border: 2px solid rgb(255 255 255 / 0.35);
   border-top-color: #fff;
   border-radius: 50%;
@@ -327,10 +402,13 @@ const sortedProbs = computed(() =>
   flex-shrink: 0;
 }
 
+.spinner--dark {
+  border-color: rgb(51 65 85 / 0.25);
+  border-top-color: #334155;
+}
+
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
 
 /* ── Error ───────────────────────────────────────────────────────────────── */
@@ -350,10 +428,7 @@ const sortedProbs = computed(() =>
 }
 
 @keyframes fade-in {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
+  from { opacity: 0; transform: translateY(6px); }
 }
 
 .result-header {
@@ -432,5 +507,31 @@ const sortedProbs = computed(() =>
   text-align: right;
   color: #64748b;
   font-variant-numeric: tabular-nums;
+}
+
+/* ── Grad-CAM card ───────────────────────────────────────────────────────── */
+.gradcam-card {
+  animation: fade-in 0.3s ease;
+}
+
+.gradcam-title {
+  margin: 0 0 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.gradcam-img {
+  width: 100%;
+  border-radius: 8px;
+  display: block;
+}
+
+.gradcam-caption {
+  margin: 0.625rem 0 0;
+  font-size: 0.75rem;
+  color: #94a3b8;
 }
 </style>

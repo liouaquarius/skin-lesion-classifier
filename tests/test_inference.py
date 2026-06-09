@@ -17,12 +17,17 @@ _MOCK_RESULT = {
     "confidence": 0.95,
     "probabilities": {cls: 1.0 / len(CLASSES) for cls in CLASSES},
 }
+_MOCK_EXPLAIN_RESULT = {
+    **_MOCK_RESULT,
+    "grad_cam_image": "data:image/jpeg;base64,/9j/fake",
+}
 
 
 @pytest.fixture
 def client():
     mock_predictor = MagicMock()
     mock_predictor.predict.return_value = _MOCK_RESULT
+    mock_predictor.explain.return_value = _MOCK_EXPLAIN_RESULT
     with patch("backend.main.Predictor", return_value=mock_predictor):
         with TestClient(app) as c:
             yield c
@@ -62,3 +67,21 @@ def test_predict_invalid_file_returns_422(client: TestClient) -> None:
         files={"file": ("bad.txt", b"not an image", "text/plain")},
     )
     assert resp.status_code == 422
+
+
+# ── /explain ──────────────────────────────────────────────────────────────────
+
+
+def test_explain_returns_gradcam_field(client: TestClient) -> None:
+    img = Image.new("RGB", (224, 224), color=(64, 128, 64))
+    buf = io.BytesIO()
+    img.save(buf, format="JPEG")
+    buf.seek(0)
+
+    resp = client.post("/explain", files={"file": ("test.jpg", buf, "image/jpeg")})
+    assert resp.status_code == 200
+
+    body = resp.json()
+    assert body["predicted_class"] in CLASSES
+    assert body["grad_cam_image"] is not None
+    assert body["grad_cam_image"].startswith("data:image/jpeg;base64,")
