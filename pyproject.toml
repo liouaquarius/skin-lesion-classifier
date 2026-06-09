@@ -15,6 +15,7 @@ dependencies = [
     "torch>=2.12.0",
     "torchvision>=0.27.0",
     "timm>=1.0.27",
+    "huggingface_hub>=0.34,<1",  # timm 1.0.x is incompatible with hf_hub 1.x
     "scikit-learn>=1.9.0",
     "pandas>=2.3.3",
     "matplotlib>=3.10.9",
@@ -22,7 +23,7 @@ dependencies = [
     "pillow>=12.2.0",
     "pyyaml>=6.0.3",
     "grad-cam>=1.5.5",  # PyPI package name; imported as `pytorch_grad_cam`
-    "mlflow>=3.13.0",
+    "mlflow>=2.15,<3",
     # Serving (backend runs on uv + FastAPI in dev; Docker uses the slim
     # backend/requirements.txt with CPU-only torch for a smaller image).
     "fastapi>=0.136.3",
