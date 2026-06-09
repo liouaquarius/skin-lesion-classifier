@@ -36,6 +36,11 @@ dev = ["pytest>=9.0.3", "pytest-cov>=7.1.0", "ruff>=0.15.16", "httpx>=0.28.1"]
 data = [
     "kaggle>=2.2.1",
 ]
+# Jupyter runtime for the EDA / experiment notebooks.
+notebook = [
+    "jupyterlab>=4.0",
+    "ipykernel>=6.0",
+]
 
 # Make `src` (and src.models / src.data / src.losses) importable and
 # measurable by --cov=src after `pip install -e .` / `uv sync`.
