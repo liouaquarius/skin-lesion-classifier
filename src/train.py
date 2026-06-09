@@ -27,7 +27,7 @@ from src.models import build_model
 _DATA_DIR = Path("data")
 _METADATA = _DATA_DIR / "HAM10000_metadata.csv"
 _IMAGE_DIR = _DATA_DIR / "HAM10000_images"
-_CHECKPOINT_DIR = Path("checkpoints")
+_CHECKPOINT_DIR = Path("results/checkpoints")
 
 _NUM_CLASSES = len(CLASSES)
 

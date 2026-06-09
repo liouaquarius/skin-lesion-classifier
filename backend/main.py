@@ -26,7 +26,7 @@ _predictor: Predictor | None = None
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global _predictor
-    ckpt = os.environ.get("CHECKPOINT_PATH", "checkpoints/model_best.pt")
+    ckpt = os.environ.get("CHECKPOINT_PATH", "results/checkpoints/best_model.pt")
     model_name = os.environ.get("MODEL_NAME", "resnet18")
     _predictor = Predictor(ckpt, model_name)
     yield
