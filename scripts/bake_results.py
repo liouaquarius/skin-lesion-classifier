@@ -7,7 +7,7 @@ Runs the held-out test split against a trained checkpoint and writes:
 
 Usage:
     uv run python scripts/bake_results.py \
-        --config  configs/resnet18.yaml \
+        --config  configs/resnet18_ce.yaml \
         --checkpoint results/checkpoints/resnet18-ce-seed42_best.pt
 """
 
@@ -100,7 +100,7 @@ def _plot_sensitivity(sensitivity: dict[str, float], run_name: str) -> None:
 
 
 def bake(config_path: str, checkpoint_path: str) -> None:
-    with open(config_path) as f:
+    with open(config_path, encoding="utf-8") as f:
         cfg = yaml.safe_load(f)
 
     run_name: str = cfg["mlflow"]["run_name"]
@@ -116,7 +116,10 @@ def bake(config_path: str, checkpoint_path: str) -> None:
     df = pd.read_csv(_METADATA)
     _, _, test_df = lesion_aware_split(df, seed=seed)
     test_ds = SkinLesionDataset(test_df, _IMAGE_DIR, build_transforms(image_size, train=False))
-    test_loader = DataLoader(test_ds, batch_size=batch_size, shuffle=False, num_workers=0)
+    test_loader = DataLoader(
+        test_ds, batch_size=batch_size, shuffle=False,
+        num_workers=2, persistent_workers=True,
+    )
 
     # ── Load checkpoint ───────────────────────────────────────────────────────
     model = build_model(model_name, num_classes=_NUM_CLASSES, pretrained=False).to(device)
@@ -137,7 +140,7 @@ def bake(config_path: str, checkpoint_path: str) -> None:
     # ── Save JSON ─────────────────────────────────────────────────────────────
     _METRICS_DIR.mkdir(parents=True, exist_ok=True)
     out_json = _METRICS_DIR / f"{run_name}_test.json"
-    with open(out_json, "w") as f:
+    with open(out_json, "w", encoding="utf-8") as f:
         json.dump({"run_name": run_name, **metrics}, f, indent=2)
     print(f"\n  Saved: {out_json}")
 

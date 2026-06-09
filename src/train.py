@@ -1,7 +1,7 @@
 """Training entry point.
 
 Usage:
-    uv run python -m src.train --config configs/resnet18.yaml
+    uv run python -m src.train --config configs/resnet18_ce.yaml
 """
 
 from __future__ import annotations
@@ -41,7 +41,7 @@ def _set_seed(seed: int) -> None:
 
 
 def _load_config(path: str | Path) -> dict:
-    with open(path) as f:
+    with open(path, encoding="utf-8") as f:
         return yaml.safe_load(f)
 
 
@@ -71,11 +71,13 @@ def train(config_path: str | Path) -> None:
 
     train_loader = DataLoader(
         train_ds, batch_size=batch_size, shuffle=True,
-        num_workers=0, pin_memory=(device.type == "cuda"),
+        num_workers=2, persistent_workers=True,
+        pin_memory=(device.type == "cuda"),
     )
     val_loader = DataLoader(
         val_ds, batch_size=batch_size, shuffle=False,
-        num_workers=0, pin_memory=(device.type == "cuda"),
+        num_workers=2, persistent_workers=True,
+        pin_memory=(device.type == "cuda"),
     )
 
     # ── Model ─────────────────────────────────────────────────────────────────
@@ -106,6 +108,7 @@ def train(config_path: str | Path) -> None:
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=num_epochs)
 
     # ── MLflow ────────────────────────────────────────────────────────────────
+    mlflow.set_tracking_uri("sqlite:///mlruns/mlflow.db")
     mlflow.set_experiment(cfg["mlflow"]["experiment"])
     _CHECKPOINT_DIR.mkdir(exist_ok=True)
 

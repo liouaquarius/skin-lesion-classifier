@@ -1,6 +1,5 @@
-# Training config — EfficientNet-B0.
 model:
-  name: efficientnet_b0
+  name: vit_tiny_patch16_224
   pretrained: true
   num_classes: 7
 
@@ -18,9 +17,9 @@ train:
   seed: 42
 
 loss:
-  name: cross_entropy   # cross_entropy | weighted_ce | focal
+  name: cross_entropy
   focal_gamma: 2.0
 
 mlflow:
   experiment: skin-lesion-classifier
-  run_name: efficientnet_b0-ce-seed42
+  run_name: vit_tiny-ce-seed42

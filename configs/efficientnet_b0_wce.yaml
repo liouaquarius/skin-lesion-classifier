@@ -1,7 +1,5 @@
-# Training config — ResNet18 baseline.
-# Swap `loss.name` to run the CE / weighted_ce / focal ablation.
 model:
-  name: resnet18
+  name: efficientnet_b0
   pretrained: true
   num_classes: 7
 
@@ -19,9 +17,9 @@ train:
   seed: 42
 
 loss:
-  name: cross_entropy   # cross_entropy | weighted_ce | focal
+  name: weighted_ce
   focal_gamma: 2.0
 
 mlflow:
   experiment: skin-lesion-classifier
-  run_name: resnet18-ce-seed42   # convention: <model>-<loss>-<seed>
+  run_name: efficientnet_b0-wce-seed42
