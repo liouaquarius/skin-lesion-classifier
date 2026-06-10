@@ -48,6 +48,18 @@ notebook = [
 [tool.setuptools.packages.find]
 include = ["src*"]
 
+# On Windows, PyPI only ships CPU-only torch wheels; CUDA builds live on
+# PyTorch's own index. Pull the CUDA 12.6 build there for local GPU training,
+# while Linux (Docker/CI) and macOS keep the default PyPI wheels.
+[[tool.uv.index]]
+name = "pytorch-cu126"
+url = "https://download.pytorch.org/whl/cu126"
+explicit = true
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-cu126", marker = "sys_platform == 'win32'" }]
+torchvision = [{ index = "pytorch-cu126", marker = "sys_platform == 'win32'" }]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = "test_*.py"
