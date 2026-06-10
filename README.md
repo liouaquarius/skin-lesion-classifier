@@ -62,13 +62,11 @@ uv run --extra data python -u scripts/download_data.py
 # 3. 執行測試
 uv run pytest -v --cov=src --cov-report=term-missing
 
-# 4. 訓練（以 ResNet18 + cross-entropy 為例）
-uv run python -m src.train --config configs/resnet18.yaml
+# 4. 訓練並評估（一條龍：train → 測試集評估；以 ResNet18 + cross-entropy 為例）
+uv run python scripts/run_experiment.py configs/resnet18_ce.yaml
 
-# 5. 評估並輸出報告
-uv run python scripts/bake_results.py \
-    --config  configs/resnet18.yaml \
-    --checkpoint results/checkpoints/resnet18-ce-seed42_best.pt
+# 5. 檢查產物是否齊全（MLflow run + checkpoint / metrics JSON / 圖）
+uv run python scripts/inspect_runs.py
 
 # 6. 啟動推論服務（後端）
 uv run uvicorn backend.main:app --reload
@@ -78,6 +76,8 @@ cd frontend && npm install && npm run dev
 ```
 
 瀏覽器開 `http://localhost:5173` 即可上傳影像、取得分類結果與 Grad-CAM 熱力圖。
+
+`run_experiment.py` 會依序對每個 config 執行「訓練 → 測試集評估」，每個 config 在獨立子程序中跑、互不影響，並在結尾列出產物完整性。可一次帶多個 config（例如 `configs/*.yaml` 跑完全部 9 組）；若只想單獨執行某一步，仍可分別呼叫 `python -m src.train` 與 `scripts/bake_results.py`。`inspect_runs.py` 則用於檢查 / 清理 MLflow run 與其磁碟產物。
 
 ## 專案架構
 
@@ -96,11 +96,13 @@ skin-lesion-classifier/
 │   ├── Dockerfile     # CPU-only 推論 image（python:3.11-slim）
 │   └── requirements.txt
 ├── frontend/          # Vue 3 + TypeScript（Vite dev server，proxy → :8000）
-├── configs/           # resnet18.yaml · efficientnet_b0.yaml · vit_tiny.yaml
+├── configs/           # 9 組：{resnet18,efficientnet_b0,vit_tiny}_{ce,wce,focal}.yaml
 ├── notebooks/         # 01_eda.ipynb（含輸出）
 ├── scripts/
-│   ├── download_data.py   # Kaggle API 下載並整理 HAM10000
-│   └── bake_results.py    # 測試集評估 → JSON metrics + PNG 視覺化
+│   ├── download_data.py    # Kaggle API 下載並整理 HAM10000
+│   ├── bake_results.py     # 測試集評估 → JSON metrics + PNG 視覺化
+│   ├── run_experiment.py   # train → bake 一條龍（可批次多個 config）
+│   └── inspect_runs.py     # 檢查 / 清理 MLflow run 與產物完整性
 ├── tests/             # 24 個測試；合成 fixture，CI 不需真實資料集
 └── results/
     ├── checkpoints/   # 訓練產生的 .pt（不入庫）
