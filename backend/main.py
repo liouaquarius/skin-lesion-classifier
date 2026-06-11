@@ -4,8 +4,9 @@ Start (dev):
     uv run uvicorn backend.main:app --reload
 
 Environment variables:
-    CHECKPOINT_PATH  path to a .pt checkpoint  (default: checkpoints/model_best.pt)
-    MODEL_NAME       timm model name            (default: resnet18)
+    CHECKPOINT_PATH  path to a .pt checkpoint
+                     (default: results/checkpoints/vit_tiny-wce-seed42_best.pt)
+    MODEL_NAME       build_model architecture name (default: vit_tiny_patch16_224)
 """
 
 from __future__ import annotations
@@ -26,8 +27,12 @@ _predictor: Predictor | None = None
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     global _predictor
-    ckpt = os.environ.get("CHECKPOINT_PATH", "results/checkpoints/best_model.pt")
-    model_name = os.environ.get("MODEL_NAME", "resnet18")
+    # Demo serves vit_tiny-wce: best macro-F1 with strong melanoma sensitivity.
+    # Override both via env vars (e.g. in Docker) to serve a different model.
+    ckpt = os.environ.get(
+        "CHECKPOINT_PATH", "results/checkpoints/vit_tiny-wce-seed42_best.pt"
+    )
+    model_name = os.environ.get("MODEL_NAME", "vit_tiny_patch16_224")
     _predictor = Predictor(ckpt, model_name)
     yield
     _predictor = None
