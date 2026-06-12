@@ -6,6 +6,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/predict': 'http://localhost:8000',
+      '/explain': 'http://localhost:8000',
       '/health': 'http://localhost:8000',
     },
   },
