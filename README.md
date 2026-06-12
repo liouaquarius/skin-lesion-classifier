@@ -132,6 +132,25 @@ cd frontend && npm install && npm run dev
 
 `run_experiment.py` 會依序對每個 config 執行「訓練 → 測試集評估」，每個 config 在獨立子程序中跑、互不影響，並在結尾列出產物完整性。可一次帶多個 config（例如 `configs/*.yaml` 跑完全部 9 組）；若只想單獨執行某一步，仍可分別呼叫 `python -m src.train` 與 `scripts/bake_results.py`。`inspect_runs.py` 則用於檢查 / 清理 MLflow run 與其磁碟產物。
 
+## 重現性 (Reproducibility)
+
+- **隨機種子**：所有實驗固定 `seed 42`（random / numpy / torch / cuda）。
+- **資料切割**：病灶感知切割（lesion-aware split），同 seed 確保 train / val / test 一致、無洩漏。
+- **環境**：Python 3.11、PyTorch 2.12.0（CUDA 12.6）；訓練於 NVIDIA RTX 4050 Laptop（6 GB）。
+- **訓練設定**：30 epochs、AdamW（lr 1e-4、wd 1e-4）、cosine LR、混合精度（AMP）、batch 32、影像 224²。
+- **訓練時長**：單組 30 epochs 約 15–30 分鐘（依架構與系統負載；EfficientNet-B0 最快、ViT-Tiny 較慢），9 組合計約 3.4 小時。每個 run 的精確 start / end 時間與逐 epoch 指標皆記錄於 MLflow。
+- **一鍵重現全部 9 組**（train → 測試集評估）：
+
+  ```bash
+  uv run python scripts/run_experiment.py configs/*.yaml
+  ```
+
+- **檢視實驗追蹤**（params / metrics / 訓練時長）：
+
+  ```bash
+  uv run mlflow ui --backend-store-uri sqlite:///mlruns/mlflow.db
+  ```
+
 ## 專案架構
 
 ```
