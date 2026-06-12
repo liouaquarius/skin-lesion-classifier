@@ -208,7 +208,7 @@ skin-lesion-classifier/
 │   │   └── views/            # ClassifierView · ResultsView（靜態儀表板）
 │   └── public/        # favicon.svg · og-cover.png · results_summary.json + 圖
 ├── configs/           # 9 組：{resnet18,efficientnet_b0,vit_tiny}_{ce,wce,focal}.yaml
-├── notebooks/         # 01_eda.ipynb（含輸出）
+├── notebooks/         # 01_eda.ipynb（資料 EDA）· 02_results_analysis.ipynb（結果 / 錯誤分析）
 ├── scripts/
 │   ├── download_data.py        # Kaggle API 下載並整理 HAM10000
 │   ├── run_experiment.py       # train → bake 一條龍（可批次多個 config）
