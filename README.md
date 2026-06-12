@@ -16,6 +16,8 @@
 > diagnosis or medical decision-making. Always consult qualified medical
 > professionals for actual medical concerns.
 
+完整的適用範圍、訓練資料分布與**模型限制**（少數類樣本不足、melanoma 漏判風險等）見 [MODEL_CARD.md](MODEL_CARD.md)。
+
 HAM10000 資料集採 CC BY-NC 4.0 授權，本專案僅作非商業之教育用途使用。
 
 ---
@@ -52,6 +54,8 @@ HAM10000 資料集採 CC BY-NC 4.0 授權，本專案僅作非商業之教育用
 | **ViT-Tiny** | **ce** | **0.8166** | 0.6676 | **0.9603** | 0.468 |
 | **ViT-Tiny** | **wce** | 0.7950 | **0.6693** | 0.9602 | 0.591 |
 | ViT-Tiny | focal | 0.7963 | 0.6558 | 0.9509 | 0.425 |
+
+![Accuracy vs melanoma sensitivity across 9 experiments](results/visualizations/model_comparison.png)
 
 **主要發現：**
 
