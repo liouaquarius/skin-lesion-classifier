@@ -85,3 +85,32 @@ def test_explain_returns_gradcam_field(client: TestClient) -> None:
     assert body["predicted_class"] in CLASSES
     assert body["grad_cam_image"] is not None
     assert body["grad_cam_image"].startswith("data:image/jpeg;base64,")
+
+
+# ── Abuse protection ──────────────────────────────────────────────────────────
+
+
+def test_oversized_upload_returns_413(client: TestClient) -> None:
+    big = b"\x00" * (6 * 1024 * 1024)  # 6 MB, over the 5 MB default cap
+    resp = client.post("/predict", files={"file": ("big.jpg", big, "image/jpeg")})
+    assert resp.status_code == 413
+
+
+def test_rate_limit_returns_429(client: TestClient, monkeypatch: pytest.MonkeyPatch) -> None:
+    import backend.main as m
+
+    monkeypatch.setattr(m, "_RATE_LIMIT_PER_MIN", 2)
+    m._request_log.clear()
+
+    img = Image.new("RGB", (64, 64), color=(10, 20, 30))
+    buf = io.BytesIO()
+    img.save(buf, format="JPEG")
+    payload = buf.getvalue()
+
+    codes = [
+        client.post(
+            "/predict", files={"file": ("t.jpg", io.BytesIO(payload), "image/jpeg")}
+        ).status_code
+        for _ in range(3)
+    ]
+    assert codes == [200, 200, 429]

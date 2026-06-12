@@ -213,7 +213,7 @@ skin-lesion-classifier/
 │   ├── profile_models.py       # 各架構 params / size / CPU latency
 │   ├── grad_cam_gallery.py     # 成功 / 誤判 Grad-CAM 拼圖
 │   └── build_dashboard_data.py # 彙整前端 Results 儀表板資料
-├── tests/             # 31 個測試；合成 fixture，CI 不需真實資料集
+├── tests/             # 33 個測試；合成 fixture，CI 不需真實資料集
 └── results/
     ├── checkpoints/   # 訓練產生的 .pt（不入庫）
     ├── metrics/       # bake_results 輸出的 JSON
