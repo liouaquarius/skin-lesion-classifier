@@ -36,6 +36,31 @@ HAM10000 資料集採 CC BY-NC 4.0 授權，本專案僅作非商業之教育用
 並以 **MLflow** 追蹤 per-class sensitivity、macro AUC 等指標。
 推論結果整合 **Grad-CAM** 熱力圖，透過 **FastAPI + Vue 3** 提供互動式 demo。
 
+## 實驗結果
+
+9 組實驗（3 架構 × 3 loss）於**留出測試集**（病灶感知切割，seed 42）的結果。
+`sens(mel)` 為 melanoma（黑色素瘤）敏感度——臨床上最不容漏判的類別。
+
+| 架構 | loss | accuracy | macro F1 | macro AUC | sens(mel) |
+|------|------|---------:|---------:|----------:|----------:|
+| ResNet18 | ce | 0.8016 | 0.6124 | 0.9556 | 0.478 |
+| ResNet18 | wce | 0.7511 | 0.6074 | 0.9411 | 0.661 |
+| ResNet18 | focal | 0.7302 | 0.5769 | 0.9273 | 0.677 |
+| EfficientNet-B0 | ce | 0.8062 | 0.6491 | 0.9520 | 0.489 |
+| EfficientNet-B0 | wce | 0.7708 | 0.6266 | 0.9446 | 0.602 |
+| EfficientNet-B0 | focal | 0.7518 | 0.6345 | 0.9462 | 0.608 |
+| **ViT-Tiny** | **ce** | **0.8166** | 0.6676 | **0.9603** | 0.468 |
+| **ViT-Tiny** | **wce** | 0.7950 | **0.6693** | 0.9602 | 0.591 |
+| ViT-Tiny | focal | 0.7963 | 0.6558 | 0.9509 | 0.425 |
+
+**主要發現：**
+
+- **ViT-Tiny 整體領先**：accuracy、macro F1、macro AUC 的最佳值皆由 ViT-Tiny 取得，優於兩個 CNN 基線。
+- **準確率 ↔ 少數類敏感度的取捨**：各架構下 `cross_entropy` 的 accuracy 最高，但 melanoma 等少數類敏感度最低；改用 `weighted_ce` / `focal` 會犧牲數個百分點 accuracy，換取明顯更高的 melanoma 敏感度（例如 ResNet18：0.478 → 0.66+）。
+- **以臨床「不漏判黑色素瘤」為目標時**，weighted-CE / focal 優於只看 accuracy 的 cross-entropy。
+
+> Demo 後端預設服務 **ViT-Tiny + weighted-CE**（macro F1 最佳、melanoma 敏感度佳，兼顧整體表現與不平衡處理）。每組的混淆矩陣與 per-class sensitivity 圖見 [`results/visualizations/`](results/visualizations/)。
+
 ## 技術棧
 
 | 層面 | 技術 |
