@@ -74,7 +74,7 @@ def main() -> None:
     scan_df = _scan(predictor, test_df)
     correct_sel, wrong_sel = _pick(scan_df)
 
-    fig, axes = plt.subplots(2, 3, figsize=(11, 7.8))
+    fig, axes = plt.subplots(2, 3, figsize=(11, 8.4), layout="constrained")
     for row, sel in enumerate([correct_sel, wrong_sel]):
         ok = row == 0
         color = "#16a34a" if ok else "#dc2626"
@@ -103,7 +103,6 @@ def main() -> None:
         f"Grad-CAM — {run_name}  (top: confident correct · bottom: confident errors)",
         fontsize=13,
     )
-    fig.tight_layout(rect=(0, 0, 1, 0.97))
     _OUT.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(_OUT, dpi=150, bbox_inches="tight")
     plt.close(fig)
