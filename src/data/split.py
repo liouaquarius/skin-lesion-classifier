@@ -6,8 +6,13 @@ physical lesion from leaking across splits (an EDA finding).
 
 from __future__ import annotations
 
-import pandas as pd
-from sklearn.model_selection import GroupShuffleSplit
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import pandas as pd
+
+# NOTE: pandas / scikit-learn are training-only deps, imported lazily inside the
+# function so the slim inference image can import src.data without them.
 
 
 def lesion_aware_split(
@@ -17,6 +22,8 @@ def lesion_aware_split(
     seed: int = 42,
 ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """Split ``df`` into (train, val, test) with no ``lesion_id`` overlap."""
+    from sklearn.model_selection import GroupShuffleSplit
+
     groups = df["lesion_id"]
     gss = GroupShuffleSplit(n_splits=1, test_size=test_size, random_state=seed)
     trainval_idx, test_idx = next(gss.split(df, groups=groups))

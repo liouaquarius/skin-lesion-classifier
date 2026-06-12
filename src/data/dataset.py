@@ -3,10 +3,17 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import TYPE_CHECKING
 
-import pandas as pd
 from PIL import Image
 from torch.utils.data import Dataset
+
+if TYPE_CHECKING:
+    import pandas as pd
+
+# NOTE: pandas is a training-only dependency and is imported lazily (inside
+# __init__) so the slim inference image can reuse CLASSES / build_transforms
+# without it. See backend/requirements.txt.
 
 # Canonical class order -> stable label indices, shared across train / eval /
 # inference. Alphabetical so the mapping never depends on data ordering.
@@ -27,6 +34,8 @@ class SkinLesionDataset(Dataset):
 
     def __init__(self, metadata: str | Path | pd.DataFrame, image_dir: str | Path, transform=None):
         if isinstance(metadata, (str, Path)):
+            import pandas as pd
+
             metadata = pd.read_csv(metadata)
         self.df = metadata.reset_index(drop=True)
         self.image_dir = Path(image_dir)
