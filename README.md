@@ -2,9 +2,13 @@
 
 [![CI](https://github.com/liouaquarius/skin-lesion-classifier/actions/workflows/ci.yml/badge.svg)](https://github.com/liouaquarius/skin-lesion-classifier/actions/workflows/ci.yml)
 
+**🔗 線上 Demo：<https://liouaquarius.github.io/skin-lesion-classifier/>**
+
 > Multi-class skin lesion classification on HAM10000: comparing CNN and
 > Vision Transformer architectures under class-imbalanced conditions,
 > with experiment tracking, automated testing, and end-to-end deployment.
+
+前端 GitHub Pages + 後端 Hugging Face Spaces。**Results** 分頁為靜態實驗結果儀表板（秒開）；**Classifier** 分頁呼叫後端推論——後端閒置會休眠，首次分類可能需約 30 秒喚醒模型伺服器。
 
 ## 免責聲明 / Disclaimer
 
