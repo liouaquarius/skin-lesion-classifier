@@ -77,6 +77,18 @@ HAM10000 資料集採 CC BY-NC 4.0 授權，本專案僅作非商業之教育用
 
 > Demo 後端預設服務 **ViT-Tiny + weighted-CE**（macro F1 最佳、melanoma 敏感度佳，兼顧整體表現與不平衡處理）。每組的混淆矩陣與 per-class sensitivity 圖見 [`results/visualizations/`](results/visualizations/)。
 
+## 可解釋性與誤判分析
+
+部署模型 **ViT-Tiny + weighted-CE** 在測試集的混淆矩陣（列正規化）：
+
+![Confusion matrix — vit_tiny-wce](results/visualizations/vit_tiny-wce-seed42_confusion_matrix.png)
+
+Grad-CAM 視覺化——上排為高信心**正確**預測，下排為高信心**誤判**：
+
+![Grad-CAM gallery — correct vs misclassified](results/visualizations/grad_cam_gallery.png)
+
+最具臨床意義的失敗模式是 **melanoma 被以接近 1.0 的信心誤判為 nevi（良性痣）**：模型對錯誤的良性判斷給出極高信心，正凸顯 [模型卡](MODEL_CARD.md) 所述「不可用於臨床」的核心理由。Grad-CAM 圖由 [`scripts/grad_cam_gallery.py`](scripts/grad_cam_gallery.py) 產生。
+
 ## 技術棧
 
 | 層面 | 技術 |
