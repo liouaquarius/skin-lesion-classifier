@@ -38,6 +38,31 @@ HAM10000 資料集採 CC BY-NC 4.0 授權，本專案僅作非商業之教育用
 並以 **MLflow** 追蹤 per-class sensitivity、macro AUC 等指標。
 推論結果整合 **Grad-CAM** 熱力圖，透過 **FastAPI + Vue 3** 提供互動式 demo。
 
+## 資料集 (Dataset)
+
+**HAM10000**（Human Against Machine with 10,015 training images）皮膚鏡影像資料集，經 Kaggle [`kmader/skin-cancer-mnist-ham10000`](https://www.kaggle.com/datasets/kmader/skin-cancer-mnist-ham10000) 下載（[`scripts/download_data.py`](scripts/download_data.py)）。
+
+| 項目 | 內容 |
+|------|------|
+| 影像數 | 10,015 張皮膚鏡（dermatoscopic）影像 |
+| 類別 | 7 類皮膚病灶 |
+| 不平衡 | 最大比例 **58.3×**（nv : df） |
+| 切割 | 病灶感知切割（lesion-aware split，防同一病灶跨 split 洩漏），seed 42 |
+| 來源 | Tschandl, Rosendahl & Kittler, *Scientific Data* (2018) |
+| 授權 | CC BY-NC 4.0（僅限非商業教育用途） |
+
+| 類別 | 全名 | 樣本數 | 佔比 |
+|------|------|------:|-----:|
+| nv | Melanocytic Nevi | 6,705 | 66.9% |
+| mel | Melanoma | 1,113 | 11.1% |
+| bkl | Benign Keratosis | 1,099 | 11.0% |
+| bcc | Basal Cell Carcinoma | 514 | 5.1% |
+| akiec | Actinic Keratosis / IEC | 327 | 3.3% |
+| vasc | Vascular Lesion | 142 | 1.4% |
+| df | Dermatofibroma | 115 | 1.1% |
+
+> 嚴重的類別不平衡（多數類 nv 佔 67%，少數類 df 僅 115 張）正是本專案以 weighted-CE / focal loss 對照、並以 per-class sensitivity 與 macro 指標（而非單看 accuracy）評估的核心動機。
+
 ## 模型架構
 
 三種架構皆以 ImageNet 預訓練權重初始化，輸出層改為 7 類。CPU 延遲為單張 224² 影像的平均推論時間（部署目標環境；數值依硬體而異，供相對比較參考）。
