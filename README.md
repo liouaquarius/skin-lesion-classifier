@@ -202,10 +202,11 @@ skin-lesion-classifier/
 │   ├── Dockerfile     # CPU-only 推論 image（python:3.11-slim）
 │   └── requirements.txt
 ├── frontend/          # Vue 3 + TypeScript（Vite，proxy → :8000）
+│   ├── index.html     # 入口 + SEO / Open Graph 分享 meta
 │   ├── src/
 │   │   ├── App.vue           # 外殼 + Classifier / Results 分頁
 │   │   └── views/            # ClassifierView · ResultsView（靜態儀表板）
-│   └── public/        # results_summary.json + 圖（Results 靜態資料）
+│   └── public/        # favicon.svg · og-cover.png · results_summary.json + 圖
 ├── configs/           # 9 組：{resnet18,efficientnet_b0,vit_tiny}_{ce,wce,focal}.yaml
 ├── notebooks/         # 01_eda.ipynb（含輸出）
 ├── scripts/
@@ -216,7 +217,8 @@ skin-lesion-classifier/
 │   ├── plot_comparison.py      # 跨模型 accuracy vs melanoma sensitivity 圖
 │   ├── profile_models.py       # 各架構 params / size / CPU latency
 │   ├── grad_cam_gallery.py     # 成功 / 誤判 Grad-CAM 拼圖
-│   └── build_dashboard_data.py # 彙整前端 Results 儀表板資料
+│   ├── build_dashboard_data.py # 彙整前端 Results 儀表板資料
+│   └── make_og_image.py        # 產生社群分享預覽圖 og-cover.png
 ├── tests/             # 33 個測試；合成 fixture，CI 不需真實資料集
 └── results/
     ├── checkpoints/   # 訓練產生的 .pt（不入庫）
