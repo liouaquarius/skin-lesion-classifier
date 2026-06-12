@@ -1,0 +1,774 @@
+{
+  "classes": [
+    "akiec",
+    "bcc",
+    "bkl",
+    "df",
+    "mel",
+    "nv",
+    "vasc"
+  ],
+  "deployed": "vit_tiny-wce-seed42",
+  "aggregate_figures": [
+    "model_comparison.png",
+    "grad_cam_gallery.png"
+  ],
+  "models": [
+    {
+      "run_name": "resnet18-ce-seed42",
+      "model": "resnet18",
+      "loss": "ce",
+      "accuracy": 0.8015717092337917,
+      "macro_f1": 0.6123632216789694,
+      "macro_auc": 0.9555785833692207,
+      "per_class_sensitivity": {
+        "akiec": 0.5,
+        "bcc": 0.696969696969697,
+        "bkl": 0.563953488372093,
+        "df": 0.2,
+        "mel": 0.478494623655914,
+        "nv": 0.9291338582677166,
+        "vasc": 0.7586206896551724
+      },
+      "confusion_matrix": [
+        [
+          24,
+          4,
+          10,
+          0,
+          5,
+          5,
+          0
+        ],
+        [
+          7,
+          46,
+          0,
+          0,
+          2,
+          11,
+          0
+        ],
+        [
+          14,
+          10,
+          97,
+          0,
+          21,
+          30,
+          0
+        ],
+        [
+          1,
+          0,
+          0,
+          2,
+          6,
+          1,
+          0
+        ],
+        [
+          7,
+          2,
+          7,
+          2,
+          89,
+          79,
+          0
+        ],
+        [
+          4,
+          9,
+          31,
+          0,
+          26,
+          944,
+          2
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          3,
+          4,
+          22
+        ]
+      ],
+      "confusion_png": "results/resnet18-ce-seed42_confusion_matrix.png",
+      "sensitivity_png": "results/resnet18-ce-seed42_sensitivity.png"
+    },
+    {
+      "run_name": "resnet18-wce-seed42",
+      "model": "resnet18",
+      "loss": "wce",
+      "accuracy": 0.7511460379829732,
+      "macro_f1": 0.6074344933441364,
+      "macro_auc": 0.9411344746608095,
+      "per_class_sensitivity": {
+        "akiec": 0.6875,
+        "bcc": 0.803030303030303,
+        "bkl": 0.563953488372093,
+        "df": 0.3,
+        "mel": 0.6612903225806451,
+        "nv": 0.8001968503937008,
+        "vasc": 0.8620689655172413
+      },
+      "confusion_matrix": [
+        [
+          33,
+          4,
+          5,
+          0,
+          4,
+          2,
+          0
+        ],
+        [
+          10,
+          53,
+          0,
+          0,
+          0,
+          3,
+          0
+        ],
+        [
+          28,
+          13,
+          97,
+          1,
+          23,
+          10,
+          0
+        ],
+        [
+          0,
+          1,
+          0,
+          3,
+          5,
+          1,
+          0
+        ],
+        [
+          13,
+          6,
+          6,
+          1,
+          123,
+          36,
+          1
+        ],
+        [
+          12,
+          22,
+          58,
+          1,
+          102,
+          813,
+          8
+        ],
+        [
+          0,
+          2,
+          2,
+          0,
+          0,
+          0,
+          25
+        ]
+      ],
+      "confusion_png": "results/resnet18-wce-seed42_confusion_matrix.png",
+      "sensitivity_png": "results/resnet18-wce-seed42_sensitivity.png"
+    },
+    {
+      "run_name": "resnet18-focal-seed42",
+      "model": "resnet18",
+      "loss": "focal",
+      "accuracy": 0.7301899148657498,
+      "macro_f1": 0.5769485415894078,
+      "macro_auc": 0.9273270904397284,
+      "per_class_sensitivity": {
+        "akiec": 0.6666666666666666,
+        "bcc": 0.7575757575757576,
+        "bkl": 0.5290697674418605,
+        "df": 0.3,
+        "mel": 0.6774193548387096,
+        "nv": 0.7775590551181102,
+        "vasc": 0.7931034482758621
+      },
+      "confusion_matrix": [
+        [
+          32,
+          4,
+          6,
+          0,
+          5,
+          1,
+          0
+        ],
+        [
+          12,
+          50,
+          0,
+          1,
+          1,
+          2,
+          0
+        ],
+        [
+          26,
+          13,
+          91,
+          1,
+          30,
+          11,
+          0
+        ],
+        [
+          1,
+          1,
+          0,
+          3,
+          5,
+          0,
+          0
+        ],
+        [
+          9,
+          7,
+          10,
+          2,
+          126,
+          32,
+          0
+        ],
+        [
+          12,
+          25,
+          63,
+          6,
+          115,
+          790,
+          5
+        ],
+        [
+          0,
+          2,
+          2,
+          0,
+          2,
+          0,
+          23
+        ]
+      ],
+      "confusion_png": "results/resnet18-focal-seed42_confusion_matrix.png",
+      "sensitivity_png": "results/resnet18-focal-seed42_sensitivity.png"
+    },
+    {
+      "run_name": "efficientnet_b0-ce-seed42",
+      "model": "efficientnet_b0",
+      "loss": "ce",
+      "accuracy": 0.8061558611656844,
+      "macro_f1": 0.6490943290062703,
+      "macro_auc": 0.9520489834781427,
+      "per_class_sensitivity": {
+        "akiec": 0.5,
+        "bcc": 0.7272727272727273,
+        "bkl": 0.6395348837209303,
+        "df": 0.6,
+        "mel": 0.489247311827957,
+        "nv": 0.9153543307086615,
+        "vasc": 0.7586206896551724
+      },
+      "confusion_matrix": [
+        [
+          24,
+          1,
+          9,
+          0,
+          10,
+          3,
+          1
+        ],
+        [
+          9,
+          48,
+          0,
+          2,
+          0,
+          7,
+          0
+        ],
+        [
+          11,
+          8,
+          110,
+          0,
+          20,
+          23,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          6,
+          4,
+          0,
+          0
+        ],
+        [
+          3,
+          8,
+          7,
+          3,
+          91,
+          73,
+          1
+        ],
+        [
+          4,
+          10,
+          24,
+          2,
+          41,
+          930,
+          5
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          6,
+          1,
+          22
+        ]
+      ],
+      "confusion_png": "results/efficientnet_b0-ce-seed42_confusion_matrix.png",
+      "sensitivity_png": "results/efficientnet_b0-ce-seed42_sensitivity.png"
+    },
+    {
+      "run_name": "efficientnet_b0-wce-seed42",
+      "model": "efficientnet_b0",
+      "loss": "wce",
+      "accuracy": 0.77079240340537,
+      "macro_f1": 0.6266173406510792,
+      "macro_auc": 0.9445504232587262,
+      "per_class_sensitivity": {
+        "akiec": 0.6041666666666666,
+        "bcc": 0.7727272727272727,
+        "bkl": 0.6046511627906976,
+        "df": 0.6,
+        "mel": 0.6021505376344086,
+        "nv": 0.8385826771653543,
+        "vasc": 0.7931034482758621
+      },
+      "confusion_matrix": [
+        [
+          29,
+          4,
+          2,
+          0,
+          10,
+          2,
+          1
+        ],
+        [
+          8,
+          51,
+          0,
+          1,
+          0,
+          6,
+          0
+        ],
+        [
+          16,
+          12,
+          104,
+          0,
+          26,
+          14,
+          0
+        ],
+        [
+          0,
+          0,
+          1,
+          6,
+          3,
+          0,
+          0
+        ],
+        [
+          4,
+          10,
+          7,
+          2,
+          112,
+          51,
+          0
+        ],
+        [
+          8,
+          12,
+          37,
+          8,
+          89,
+          852,
+          10
+        ],
+        [
+          0,
+          0,
+          0,
+          0,
+          6,
+          0,
+          23
+        ]
+      ],
+      "confusion_png": "results/efficientnet_b0-wce-seed42_confusion_matrix.png",
+      "sensitivity_png": "results/efficientnet_b0-wce-seed42_sensitivity.png"
+    },
+    {
+      "run_name": "efficientnet_b0-focal-seed42",
+      "model": "efficientnet_b0",
+      "loss": "focal",
+      "accuracy": 0.7518009168303864,
+      "macro_f1": 0.6345205978253855,
+      "macro_auc": 0.9461759856080445,
+      "per_class_sensitivity": {
+        "akiec": 0.5833333333333334,
+        "bcc": 0.7727272727272727,
+        "bkl": 0.6162790697674418,
+        "df": 0.7,
+        "mel": 0.6075268817204301,
+        "nv": 0.8080708661417323,
+        "vasc": 0.7586206896551724
+      },
+      "confusion_matrix": [
+        [
+          28,
+          2,
+          6,
+          0,
+          11,
+          1,
+          0
+        ],
+        [
+          9,
+          51,
+          1,
+          0,
+          2,
+          3,
+          0
+        ],
+        [
+          15,
+          9,
+          106,
+          0,
+          29,
+          13,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          7,
+          3,
+          0,
+          0
+        ],
+        [
+          3,
+          8,
+          10,
+          2,
+          113,
+          50,
+          0
+        ],
+        [
+          8,
+          14,
+          42,
+          9,
+          118,
+          821,
+          4
+        ],
+        [
+          0,
+          0,
+          0,
+          1,
+          6,
+          0,
+          22
+        ]
+      ],
+      "confusion_png": "results/efficientnet_b0-focal-seed42_confusion_matrix.png",
+      "sensitivity_png": "results/efficientnet_b0-focal-seed42_sensitivity.png"
+    },
+    {
+      "run_name": "vit_tiny-ce-seed42",
+      "model": "vit_tiny",
+      "loss": "ce",
+      "accuracy": 0.816633922724296,
+      "macro_f1": 0.6675554487244743,
+      "macro_auc": 0.9602718469794363,
+      "per_class_sensitivity": {
+        "akiec": 0.6041666666666666,
+        "bcc": 0.7272727272727273,
+        "bkl": 0.6744186046511628,
+        "df": 0.4,
+        "mel": 0.46774193548387094,
+        "nv": 0.9261811023622047,
+        "vasc": 0.7586206896551724
+      },
+      "confusion_matrix": [
+        [
+          29,
+          2,
+          7,
+          0,
+          5,
+          5,
+          0
+        ],
+        [
+          6,
+          48,
+          2,
+          0,
+          0,
+          10,
+          0
+        ],
+        [
+          9,
+          11,
+          116,
+          0,
+          19,
+          17,
+          0
+        ],
+        [
+          1,
+          0,
+          0,
+          4,
+          5,
+          0,
+          0
+        ],
+        [
+          5,
+          5,
+          7,
+          2,
+          87,
+          80,
+          0
+        ],
+        [
+          4,
+          11,
+          28,
+          0,
+          29,
+          941,
+          3
+        ],
+        [
+          0,
+          2,
+          0,
+          0,
+          4,
+          1,
+          22
+        ]
+      ],
+      "confusion_png": "results/vit_tiny-ce-seed42_confusion_matrix.png",
+      "sensitivity_png": "results/vit_tiny-ce-seed42_sensitivity.png"
+    },
+    {
+      "run_name": "vit_tiny-wce-seed42",
+      "model": "vit_tiny",
+      "loss": "wce",
+      "accuracy": 0.7950229207596594,
+      "macro_f1": 0.6692518624488685,
+      "macro_auc": 0.9602233417989261,
+      "per_class_sensitivity": {
+        "akiec": 0.625,
+        "bcc": 0.8333333333333334,
+        "bkl": 0.7325581395348837,
+        "df": 0.4,
+        "mel": 0.5913978494623656,
+        "nv": 0.8503937007874016,
+        "vasc": 0.8620689655172413
+      },
+      "confusion_matrix": [
+        [
+          30,
+          2,
+          6,
+          0,
+          10,
+          0,
+          0
+        ],
+        [
+          4,
+          55,
+          1,
+          1,
+          0,
+          5,
+          0
+        ],
+        [
+          9,
+          10,
+          126,
+          1,
+          13,
+          13,
+          0
+        ],
+        [
+          1,
+          0,
+          1,
+          4,
+          4,
+          0,
+          0
+        ],
+        [
+          6,
+          4,
+          17,
+          2,
+          110,
+          47,
+          0
+        ],
+        [
+          7,
+          16,
+          55,
+          1,
+          69,
+          864,
+          4
+        ],
+        [
+          0,
+          0,
+          1,
+          0,
+          2,
+          1,
+          25
+        ]
+      ],
+      "confusion_png": "results/vit_tiny-wce-seed42_confusion_matrix.png",
+      "sensitivity_png": "results/vit_tiny-wce-seed42_sensitivity.png"
+    },
+    {
+      "run_name": "vit_tiny-focal-seed42",
+      "model": "vit_tiny",
+      "loss": "focal",
+      "accuracy": 0.796332678454486,
+      "macro_f1": 0.6557988790428262,
+      "macro_auc": 0.950926766499756,
+      "per_class_sensitivity": {
+        "akiec": 0.6875,
+        "bcc": 0.8333333333333334,
+        "bkl": 0.5348837209302325,
+        "df": 0.6,
+        "mel": 0.42473118279569894,
+        "nv": 0.9133858267716536,
+        "vasc": 0.7931034482758621
+      },
+      "confusion_matrix": [
+        [
+          33,
+          3,
+          2,
+          0,
+          9,
+          1,
+          0
+        ],
+        [
+          6,
+          55,
+          0,
+          1,
+          0,
+          4,
+          0
+        ],
+        [
+          19,
+          14,
+          92,
+          0,
+          33,
+          14,
+          0
+        ],
+        [
+          1,
+          0,
+          0,
+          6,
+          3,
+          0,
+          0
+        ],
+        [
+          6,
+          11,
+          2,
+          3,
+          79,
+          85,
+          0
+        ],
+        [
+          9,
+          19,
+          23,
+          1,
+          33,
+          928,
+          3
+        ],
+        [
+          0,
+          2,
+          0,
+          0,
+          3,
+          1,
+          23
+        ]
+      ],
+      "confusion_png": "results/vit_tiny-focal-seed42_confusion_matrix.png",
+      "sensitivity_png": "results/vit_tiny-focal-seed42_sensitivity.png"
+    }
+  ]
+}
