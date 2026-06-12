@@ -1,26 +1,23 @@
 # syntax=docker/dockerfile:1
 # CPU-only inference image — no CUDA required at runtime.
+# Used for local Docker and Hugging Face Spaces (Docker SDK).
 #
-# Build (from repo root):
+# Bake the deployment checkpoint first, then build from the repo root:
+#   cp results/checkpoints/vit_tiny-wce-seed42_best.pt results/checkpoints/best_model.pt
 #   docker build -f backend/Dockerfile -t skin-lesion-classifier .
+#   docker run -p 8000:8000 skin-lesion-classifier
 #
-# Run (mount a trained checkpoint):
-#   docker run -p 8000:8000 \
-#     -e CHECKPOINT_PATH=/ckpt/best_model.pt \
-#     -v /path/to/results/checkpoints:/ckpt:ro \
-#     skin-lesion-classifier
-#
-# Or bake the model in: copy the best checkpoint to
-# results/checkpoints/best_model.pt before building — it is the only
-# .pt file the .dockerignore allows through.
+# best_model.pt is the only .pt the .dockerignore lets into the build context.
+# On HF Spaces: set the Space README `app_port: 8000` and `ALLOWED_ORIGINS`
+# (the GitHub Pages origin) as a Space variable.
 
 FROM python:3.11-slim
 
 WORKDIR /app
 
-# Pillow needs libglib2.0-0 for JPEG/PNG decoding at runtime.
+# Runtime libs: libglib2.0-0 (Pillow), libgl1 (OpenCV, pulled in by grad-cam).
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends libglib2.0-0 \
+    && apt-get install -y --no-install-recommends libglib2.0-0 libgl1 \
     && rm -rf /var/lib/apt/lists/*
 
 # ── PyTorch (CPU-only) ────────────────────────────────────────────────────────
@@ -37,13 +34,18 @@ RUN pip install --no-cache-dir \
     "timm==1.0.27" \
     -r requirements.txt
 
-# ── Application source ────────────────────────────────────────────────────────
+# ── Application source + baked model ──────────────────────────────────────────
 COPY src/ src/
 COPY backend/ backend/
+COPY results/checkpoints/best_model.pt model/best_model.pt
 
-# Add project root to PYTHONPATH so `from src.inference import …` resolves.
-ENV PYTHONPATH=/app
+# Add project root to PYTHONPATH; point the server at the baked vit_tiny-wce model.
+ENV PYTHONPATH=/app \
+    CHECKPOINT_PATH=/app/model/best_model.pt \
+    MODEL_NAME=vit_tiny_patch16_224
 
 EXPOSE 8000
 
-CMD ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Shell form so a platform-provided $PORT (e.g. Cloud Run) can override;
+# defaults to 8000, which matches the HF Space `app_port: 8000`.
+CMD ["sh", "-c", "uvicorn backend.main:app --host 0.0.0.0 --port ${PORT:-8000}"]

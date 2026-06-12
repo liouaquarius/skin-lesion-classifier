@@ -1,4 +1,4 @@
-# Backend inference deps (slim, for Docker / Cloud Run).
+# Backend inference deps (slim, for Docker / Cloud Run / HF Spaces).
 # NOTE: torch + torchvision are installed separately as CPU-only wheels
 # in the Dockerfile. Do NOT list them here, and do NOT add training-only
 # packages (mlflow, jupyter, seaborn, etc.).
@@ -8,3 +8,6 @@ python-multipart==0.0.32
 pydantic==2.13.4
 pillow==12.2.0
 numpy==2.4.6
+# Grad-CAM for the /explain endpoint (imported as pytorch_grad_cam).
+# Pulls opencv/scikit-learn/ttach; the Dockerfile adds the opencv runtime lib.
+grad-cam==1.5.5

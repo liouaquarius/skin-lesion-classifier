@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 
 interface PredictionResponse {
   predicted_class: string
@@ -20,6 +20,34 @@ const CLASS_LABELS: Record<string, string> = {
   nv: 'Melanocytic Nevi',
   vasc: 'Vascular Lesion',
 }
+
+// Empty in dev (Vite proxy handles /predict etc.); the HF Space URL in prod.
+const API_BASE = import.meta.env.VITE_API_BASE ?? ''
+
+// The HF Space sleeps after 48h idle; the first request wakes it (~30s). Ping
+// /health on mount so it warms up before the user uploads, and show status.
+const serverStatus = ref<'waking' | 'ready' | 'offline'>('waking')
+
+async function pingHealth(retries = 20): Promise<void> {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const ctrl = new AbortController()
+      const timer = setTimeout(() => ctrl.abort(), 5000)
+      const r = await fetch(`${API_BASE}/health`, { signal: ctrl.signal })
+      clearTimeout(timer)
+      if (r.ok) {
+        serverStatus.value = 'ready'
+        return
+      }
+    } catch {
+      // Connection refused / aborted while the Space is still waking — retry.
+    }
+    await new Promise((res) => setTimeout(res, 3000))
+  }
+  serverStatus.value = 'offline'
+}
+
+onMounted(pingHealth)
 
 const fileInput = ref<HTMLInputElement>()
 const file = ref<File | null>(null)
@@ -54,7 +82,7 @@ function loadFile(f: File) {
 async function postImage(endpoint: string): Promise<Response> {
   const body = new FormData()
   body.append('file', file.value!)
-  const resp = await fetch(endpoint, { method: 'POST', body })
+  const resp = await fetch(`${API_BASE}${endpoint}`, { method: 'POST', body })
   if (!resp.ok) {
     const detail = await resp.json().catch(() => null)
     throw new Error((detail as { detail?: string })?.detail ?? `HTTP ${resp.status}`)
@@ -103,6 +131,16 @@ const sortedProbs = computed(() =>
 </script>
 
 <template>
+  <!-- Backend status (HF Space cold-start) -->
+  <div v-if="serverStatus !== 'ready'" class="server-banner" :class="serverStatus">
+    <span v-if="serverStatus === 'waking'" class="spinner spinner--dark" aria-hidden="true" />
+    <span>{{
+      serverStatus === 'waking'
+        ? '正在喚醒模型伺服器（閒置後首次啟動約需 30 秒）…'
+        : '模型伺服器目前無法連線，請稍後重試。'
+    }}</span>
+  </div>
+
   <div class="card">
     <!-- Drop zone -->
     <div
@@ -212,6 +250,29 @@ const sortedProbs = computed(() =>
 </template>
 
 <style scoped>
+/* ── Backend status banner ───────────────────────────────────────────────── */
+.server-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 8px;
+  padding: 0.625rem 1rem;
+  font-size: 0.8125rem;
+  margin-bottom: 1.25rem;
+}
+
+.server-banner.waking {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  color: #1e40af;
+}
+
+.server-banner.offline {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+  color: #991b1b;
+}
+
 /* ── Drop zone ───────────────────────────────────────────────────────────── */
 .drop-zone {
   border: 2px dashed #cbd5e1;
