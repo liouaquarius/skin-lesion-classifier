@@ -38,6 +38,18 @@ HAM10000 資料集採 CC BY-NC 4.0 授權，本專案僅作非商業之教育用
 並以 **MLflow** 追蹤 per-class sensitivity、macro AUC 等指標。
 推論結果整合 **Grad-CAM** 熱力圖，透過 **FastAPI + Vue 3** 提供互動式 demo。
 
+## 模型架構
+
+三種架構皆以 ImageNet 預訓練權重初始化，輸出層改為 7 類。CPU 延遲為單張 224² 影像的平均推論時間（部署目標環境；數值依硬體而異，供相對比較參考）。
+
+| 架構 | 參數量 | Checkpoint | CPU 延遲 | 預訓練來源 |
+|------|------:|-----------:|--------:|-----------|
+| ResNet18 | 11.18M | 44.8 MB | 17.5 ms | torchvision / ImageNet |
+| EfficientNet-B0 | 4.02M | 16.4 MB | 17.1 ms | torchvision / ImageNet |
+| ViT-Tiny | 5.53M | 22.2 MB | 14.4 ms | timm / ImageNet |
+
+> ViT-Tiny 在本實驗同時取得最佳指標與最低 CPU 延遲，模型體積亦適中——這也是 demo 選用它的原因之一。量測腳本見 [`scripts/profile_models.py`](scripts/profile_models.py)。
+
 ## 實驗結果
 
 9 組實驗（3 架構 × 3 loss）於**留出測試集**（病灶感知切割，seed 42）的結果。
