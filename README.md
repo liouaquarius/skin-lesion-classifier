@@ -153,7 +153,12 @@ uv run uvicorn backend.main:app --reload
 cd frontend && npm install && npm run dev
 ```
 
-瀏覽器開 `http://localhost:5173` 即可上傳影像、取得分類結果與 Grad-CAM 熱力圖。
+瀏覽器開 `http://localhost:5173`，介面分兩個分頁：
+
+- **Classifier**：上傳影像 → 取得分類結果與 Grad-CAM 熱力圖（需後端）。
+- **Results**：靜態實驗結果儀表板——模型比較表、accuracy vs melanoma sensitivity 彙整圖、逐模型混淆矩陣 / per-class 敏感度切換、Grad-CAM 成功 / 誤判 gallery。**純靜態，不需後端即可瀏覽**。
+
+> Results 分頁的資料由 [`scripts/build_dashboard_data.py`](scripts/build_dashboard_data.py) 從 9 份 test metrics 彙整、複製到 `frontend/public/`；重訓模型後重跑此腳本即可更新。
 
 `run_experiment.py` 會依序對每個 config 執行「訓練 → 測試集評估」，每個 config 在獨立子程序中跑、互不影響，並在結尾列出產物完整性。可一次帶多個 config（例如 `configs/*.yaml` 跑完全部 9 組）；若只想單獨執行某一步，仍可分別呼叫 `python -m src.train` 與 `scripts/bake_results.py`。`inspect_runs.py` 則用於檢查 / 清理 MLflow run 與其磁碟產物。
 
@@ -192,15 +197,23 @@ skin-lesion-classifier/
 │   ├── schemas.py     # PredictionResponse · ExplainResponse
 │   ├── Dockerfile     # CPU-only 推論 image（python:3.11-slim）
 │   └── requirements.txt
-├── frontend/          # Vue 3 + TypeScript（Vite dev server，proxy → :8000）
+├── frontend/          # Vue 3 + TypeScript（Vite，proxy → :8000）
+│   ├── src/
+│   │   ├── App.vue           # 外殼 + Classifier / Results 分頁
+│   │   └── views/            # ClassifierView · ResultsView（靜態儀表板）
+│   └── public/        # results_summary.json + 圖（Results 靜態資料）
 ├── configs/           # 9 組：{resnet18,efficientnet_b0,vit_tiny}_{ce,wce,focal}.yaml
 ├── notebooks/         # 01_eda.ipynb（含輸出）
 ├── scripts/
-│   ├── download_data.py    # Kaggle API 下載並整理 HAM10000
-│   ├── bake_results.py     # 測試集評估 → JSON metrics + PNG 視覺化
-│   ├── run_experiment.py   # train → bake 一條龍（可批次多個 config）
-│   └── inspect_runs.py     # 檢查 / 清理 MLflow run 與產物完整性
-├── tests/             # 24 個測試；合成 fixture，CI 不需真實資料集
+│   ├── download_data.py        # Kaggle API 下載並整理 HAM10000
+│   ├── run_experiment.py       # train → bake 一條龍（可批次多個 config）
+│   ├── bake_results.py         # 測試集評估 → JSON metrics + PNG 視覺化
+│   ├── inspect_runs.py         # 檢查 / 清理 MLflow run 與產物完整性
+│   ├── plot_comparison.py      # 跨模型 accuracy vs melanoma sensitivity 圖
+│   ├── profile_models.py       # 各架構 params / size / CPU latency
+│   ├── grad_cam_gallery.py     # 成功 / 誤判 Grad-CAM 拼圖
+│   └── build_dashboard_data.py # 彙整前端 Results 儀表板資料
+├── tests/             # 31 個測試；合成 fixture，CI 不需真實資料集
 └── results/
     ├── checkpoints/   # 訓練產生的 .pt（不入庫）
     ├── metrics/       # bake_results 輸出的 JSON
